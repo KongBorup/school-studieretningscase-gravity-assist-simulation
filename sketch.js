@@ -1,15 +1,3 @@
-// Unit rescaling factors
-// const yearFactor = 1 / (365.25 * 24 * 60 * 60)
-// const auFactor = 1 / (1.49 * 10^11)
-
-// Constants
-// const G = 6.67e-11;
-// const M = 2e30;
-const GM = 40;
-const dt = 0.001;
-const numSteps = 5 / dt;
-const animSpeed = 10;
-
 let points;
 let curIndex = 0;
 
@@ -21,8 +9,8 @@ function setup() {
 function calculateTrajectory() {
   const positions = [];
   const earth = {
-    pos: createVector(4, 1.5),
-    vel: createVector(-TWO_PI, 0),
+    pos: createVector(1, 0),
+    vel: createVector(0, TWO_PI),
   };
   
   positions.push(earth.pos);
@@ -32,7 +20,9 @@ function calculateTrajectory() {
     const { mult, add } = p5.Vector;
 
     // Calculate acceleration using Newton's law of gravitation
-    const acc = mult(pos, -GM / pos.mag() ** 3);
+    const unitVector = pos.copy();
+    unitVector.normalize();
+    const acc = mult(unitVector, -G * SUN_MASS * EARTH_MASS / pos.mag() ** 2);
     // Update velocity and position using Euler's method
     earth.vel = add(vel, mult(acc, dt));
     earth.pos = add(pos, mult(vel, dt));
@@ -48,11 +38,11 @@ function draw() {
   translate(width / 2, height / 2);
   scale(100);
   strokeWeight(0.01);
-  stroke(34, 139, 34, 60);
+  stroke(34, 139, 34);
 
   noFill();
-  beginShape(LINES);
-  for (let i = 0; i <= curIndex; i++) {
+  beginShape();
+  for (let i = 0; i <= curIndex; i += animSpeed) {
     const { x, y } = points[i];
     vertex(x, y);
   }
@@ -66,6 +56,17 @@ function draw() {
   fill(34, 139, 34);
   circle(x, y, 0.1);
   
+  scale(0.01);
+  textSize(12);
+
+  textAlign(CENTER, CENTER);
+  fill(218, 165, 32);
+  text('Sun', 0, 40);
+  
+  textAlign(CENTER, LEFT);
+  fill(34, 139, 34);
+  text('Earth', x * 100 + 25, y * 100);
+
   curIndex += animSpeed;
 
   if (curIndex >= points.length) {
