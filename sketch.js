@@ -41,7 +41,6 @@ function draw() {
   translate(width / 2, height / 2);
   scale(70);
   strokeWeight(0.05);
-  stroke(34, 139, 34);
 
   noFill();
   bodies.forEach((body) => {
@@ -53,13 +52,13 @@ function draw() {
 
       beginShape(LINES);
       for (let i = 0; i <= curIndex; i += animSpeed) {
-        const { x, y } = body.history[i];
+        const { x, y } = body.history[i].pos;
         vertex(x, y);
       }
       endShape();
     }
     
-    const { x, y } = body.immovable ? body.history[0] : body.history[curIndex];
+    const { x, y } = body.immovable ? body.history[0].pos : body.history[curIndex].pos;
     const r = body.immovable ? 0.5 : 0.2;
 
     noStroke();
@@ -74,5 +73,11 @@ function draw() {
   if (curIndex >= numSteps) {
     console.log('FINISHED ANIMATING');
     noLoop();
+
+    const framerateSum = framerates.reduce((acc, val) => acc + val);
+    const avgFramerate = framerateSum / frameCount;
+    console.log('Average framerate:', avgFramerate);
+
+    displayData(bodies[0]);
   }
 }

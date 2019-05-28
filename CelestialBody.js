@@ -3,7 +3,9 @@ class CelestialBody {
     this.pos = pos;
     this.vel = vel;
     this.immovable = immovable;
-    this.history = [this.pos];
+    this.history = [];
+
+    this.saveState();
   }
 
   update(otherBodies) {
@@ -20,7 +22,15 @@ class CelestialBody {
     this.vel = add(vel, mult(acc, dt));
     this.pos = add(pos, mult(vel, dt));
 
-    this.history.push(this.pos);
+    this.saveState(acc);
+  }
+
+  saveState(acc = createVector(0, 0)) {
+    this.history.push({
+      acc,
+      pos: this.pos,
+      vel: this.vel,
+    });
   }
 
   calcAcc(otherBodies) {
