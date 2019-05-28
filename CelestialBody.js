@@ -1,11 +1,16 @@
 class CelestialBody {
-  constructor({ pos, vel, mass }) {
+  constructor({ pos, vel, immovable }) {
     this.pos = pos;
     this.vel = vel;
-    this.mass = mass;
+    this.immovable = immovable;
+    this.history = [this.pos];
   }
 
   update(otherBodies) {
+    if (this.immovable) {
+      return;
+    }
+
     const { mult, add } = p5.Vector;
     const { pos, vel } = this;
 
@@ -14,43 +19,30 @@ class CelestialBody {
     // Update velocity and position using Euler's method
     this.vel = add(vel, mult(acc, dt));
     this.pos = add(pos, mult(vel, dt));
+
+    this.history.push(this.pos);
   }
 
   calcAcc(otherBodies) {
-    const { add } = p5.Vector;
-
-    let acc = createVector(0, 0);
+    const acc = createVector(0, 0);
 
     // Add together all accelerations to get a final heading
-    otherBodies.forEach((other) => {
-      acc = add(acc, this.calcGrav(other));
-    });
+    otherBodies.forEach((other) => acc.add(this.calcGrav(other)));
 
     return acc;
   }
 
-  // Calculate gravity between two bodies as a vector such that direction can be
-  // taken into account.
   calcGrav(other) {
-    const gravSize = this.calcGravSize(other);
-
-    const horDist = other.pos.x - this.pos.x;
-    const verDist = other.pos.y - this.pos.y;
-
-    const totalDist = Math.abs(horDist) + Math.abs(verDist);
-
-    const x = (gravSize / totalDist) * horDist;
-    const y = (gravSize / totalDist) * verDist;
-
-    return createVector(x, y);
-  }
-
-  // Newton's law of universal gravitation
-  calcGravSize(other) {
+    const { mult } = p5.Vector;
+    
     const r = this.pos.dist(other.pos);
-    const m1m2 = this.mass * other.mass;
-    const pull = G * m1m2 / r ** 2;
+    const forceStrength = GM / r ** 2;
 
-    return pull;
+    const xDist = other.pos.x - this.pos.x;
+    const yDist = other.pos.y - this.pos.y;
+    const dir = createVector(xDist, yDist).normalize();
+    const force = mult(dir, forceStrength);
+
+    return force;
   }
 }
