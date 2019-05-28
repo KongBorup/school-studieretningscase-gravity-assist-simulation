@@ -3,10 +3,57 @@ function displayData(body) {
   console.log('Body travelled a distance of', distanceTravelled(body));
   console.log('Average velocity of', avgVelocity(body));
 
+  calculateTrajectoryFromEndingConditions(bodies);
+
   // Uncomment below lines if you want the data. Commented by default, because
   // it fills up the browser with copyable lines - not wanted!
   // const csvData = generateCsvData(body, [bodies[1], bodies[2]]);
   // createP(csvData);
+}
+
+function calculateTrajectoryFromEndingConditions(finishedBodies) {
+  // We don't want to modify the originals, so let's deep copy it all
+  const bodies = finishedBodies
+    .map(body => Object.assign( Object.create( Object.getPrototypeOf(body)), body));
+  // And we don't want to be able to cheat, let's delete the history!
+  // We do want to be able to compare to the initial starting conditions, so
+  // these will be saved
+  const [origStartConds] = bodies[0].history;
+  bodies.forEach(body => {
+    body.history = [];
+    body.saveState();
+  });
+  
+  // Do a reverse Euler method
+  for (let i = 0; i < numSteps; i++) {
+    bodies.forEach((body) => {
+      // All this reverse logic shouldn't be in the class itself as it is not
+      // part of a celestial body's behaviour
+
+      if (body.immovable) {
+        return;
+      }
+
+      const { mult, sub } = p5.Vector;
+      const { pos, vel } = body;
+      
+      const otherBodies = bodies.filter(other => body !== other);
+      const acc = body.calcAcc(otherBodies);
+  
+      // Update velocity and position using reverse Euler's method
+      body.vel = sub(vel, mult(acc, dt));
+      body.pos = sub(pos, mult(vel, dt));
+
+      body.saveState(acc);
+    });
+  }
+
+  const { sub } = p5.Vector;
+  const newStartConds = bodies[0].history[bodies[0].history.length - 1];
+  const diffPos = sub(newStartConds.pos, origStartConds.pos);
+  const diffVel = sub(newStartConds.vel, origStartConds.vel);
+
+  console.log('Pos difference:', diffPos, '\nVel difference:', diffVel);
 }
 
 function distanceTravelled(body) {
