@@ -37,22 +37,21 @@ class CelestialBody {
     const acc = createVector(0, 0);
 
     // Add together all accelerations to get a final heading
-    otherBodies.forEach((other) => acc.add(this.calcGrav(other)));
+    otherBodies.forEach((other) => acc.add(this.calcAccBetween(other)));
 
     return acc;
   }
 
-  calcGrav(other) {
-    const { mult } = p5.Vector;
-    
-    const r = this.pos.dist(other.pos);
-    const forceStrength = GM / r ** 2;
-
+  calcAccBetween(other) {
     const xDist = other.pos.x - this.pos.x;
     const yDist = other.pos.y - this.pos.y;
     const dir = createVector(xDist, yDist).normalize();
-    const force = mult(dir, forceStrength);
+    
+    const r = this.pos.dist(other.pos);
+    const accMag = GM / r ** 2;
 
-    return force;
+    const acc = dir.copy().setMag(accMag);
+
+    return acc;
   }
 }
