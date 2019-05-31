@@ -1,8 +1,8 @@
-// The product of the universal gravitational constant G and the mass of the sun
-// M that has been rescaled from SI units to astronomical units and years.
-const GM = 39.85998;
+// Universal gravitational constant rescaled from SI-units to astronical units,
+// years and Earth masses
+const G = 0.0001185651;
 
 // Options
 const dt = 0.0001;
-const numSteps = 2 / dt;
-const animSpeed = 100;
+const numSteps = 5 / dt;
+const animSpeed = 500;

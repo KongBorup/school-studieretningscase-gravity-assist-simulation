@@ -7,7 +7,8 @@ function displayData(body) {
 
   // Uncomment below lines if you want the data. Commented by default, because
   // it fills up the browser with copyable lines - not wanted!
-  // const csvData = generateCsvData(body, [bodies[1], bodies[2]]);
+  // const others = bodies.filter(other => body !== other);
+  // const csvData = generateCsvData(body, others);
   // createP(csvData);
 }
 
@@ -97,17 +98,19 @@ function generateCsvData(body, others) {
   const accs = body.history.map(({ acc }) => acc.mag());
   const dists = body.history
     .map(({ pos }) => others.map((other) => pos.dist(other.pos)));
+  const names = others.map(({ name }) => name);
+  const headers = 'time,vel,acc,x,y,' + names.join(',');
 
-  const lines = ['time,vel,acc,x,y,dist0,dist1'];
+  const lines = [headers];
 
-  for (let i = 0; i < numSteps; i += 100) {
+  for (let i = 0; i < numSteps; i += 25) {
     const t = dt * i;
     const vel = vels[i];
     const acc = accs[i];
+    const curDists = dists[i];
     const { x, y } = body.history[i].pos;
-    const [distleft, distright] = dists[i];
 
-    const line = [t, vel, acc, x, y, distleft, distright].join(',');
+    const line = `${[t, vel, acc, x, y].join(',')},${curDists.join(',')}`;
     lines.push(line);
   }
 

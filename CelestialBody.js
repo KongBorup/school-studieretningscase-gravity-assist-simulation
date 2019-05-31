@@ -1,8 +1,11 @@
 class CelestialBody {
-  constructor({ pos, vel, immovable }) {
+  constructor({ pos, vel, mass, immovable, colour, name }) {
     this.pos = pos;
     this.vel = vel;
+    this.mass = mass;
     this.immovable = immovable;
+    this.colour = colour;
+    this.name = name;
     this.history = [];
 
     this.saveState();
@@ -48,7 +51,7 @@ class CelestialBody {
     const dir = createVector(xDist, yDist).normalize();
     
     const r = this.pos.dist(other.pos);
-    const accMag = GM / r ** 2;
+    const accMag = G * other.mass / r ** 2;
 
     const acc = dir.copy().setMag(accMag);
 
